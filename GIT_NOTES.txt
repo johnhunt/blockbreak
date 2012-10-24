@@ -1,0 +1,4 @@
+Git notes:
+
+Funny stuff:
+1. To set up an existing repo with existing files (eg empty repo with existing project on local macine) set origin to the remote repo

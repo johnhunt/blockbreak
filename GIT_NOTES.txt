@@ -11,6 +11,15 @@ git config --global color.ui true
 - Github docs are wrong, there is no write with https (or at least I can't create a new branch on github with that protocol..) - use ssh, this is confirmed on stackoverflow.. I'm not 100% sure it's the case but certainly seemed to stop me a bit.
 - If you don't want to apply a staged or un-staged change to the current branch you can just git stash and then git stash apply later on to the branch you do want.. don't get too muddled up though.. it's best to finish your work, do a commit and then change branch. Stashing is a bit of a temporary thing I think... [note: read up about stashing]
 
+4. Merging:
+git merge experimental
+- Merges experimental branch into current branch and does a commit, this is known as a merge commit.
+
+5. Rebasing
+- Rebase your local dev branch(es) to bring them up to speed with a remote branch or other branch without having a load of merge commits happening.. if you don't do this your branches will be full of merge commits. Rebasing is basically like merging normally but 'quieter', this use case is probably the safest.
+http://www.jarrodspillers.com/2009/08/19/git-merge-vs-git-rebase-avoiding-rebase-hell/
+- Don't rebase branches you have shared with another developer.
+
 Funny stuff:
 1. To set up an existing repo with existing files (eg empty repo with existing project on local macine) set origin to the remote repo
 

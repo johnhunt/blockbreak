@@ -16,11 +16,12 @@ http://www.mariopareja.com/blog/archive/2010/01/11/how-to-push-a-new-local-branc
 
 Note: when you git push origin it'll update all branches on origin that exist there
 
-Beware! This is very easy to do:
+Beware: This looks worse than it is:
 
 john@helium:/var/www/streetrage/public$ git checkout experimental
 M       index.html
 Switched to branch 'experimental'
 
-Whoops, you just merged it to the new branch you checked out.. but that's because your file was un-staged
+But nothing has really changed as you haven't committed anything. If you change branches again without stashing/committing etc the un-committed changes will follow you around until you commit, stash or revert them.
 
+error: You have local changes to 'GIT_NOTES.txt'; cannot switch branches. -

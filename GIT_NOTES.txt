@@ -1,5 +1,8 @@
 Git notes:
 
+1. Enable colours!
+git config --global color.ui true
+
 - Github docs are wrong, there is no write with https (or at least I can't create a new branch on github with that protocol..) - use ssh
 Funny stuff:
 1. To set up an existing repo with existing files (eg empty repo with existing project on local macine) set origin to the remote repo

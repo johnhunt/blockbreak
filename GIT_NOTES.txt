@@ -1,5 +1,30 @@
 Git notes:
 
+[How we should maybe use Git at S24:]
+(To discuss with team!)
+1. We can obviously have whatever local branches we want..however:
+2. I think we should agree on some standard branches:
+
+   On a team members machine:
+   - live: This should be the same as what's on the live website/whatever.. maybe make this readonly if possible! Pull from /var/www/somesite on scaramanga
+   - master: The new set of changes we are about to implement - Push/pull to github
+   - [bigfeature1]: Some big feature we're working on, call it something sensible - Push/pull to github
+   - [bigfeature2]: Some big feature we're working on, call it something sensible - Push/pull to github
+   - [bigfeature3]: Some big feature we're working on, call it something sensible - Push/pull to github
+
+   Deployment on Scaramanga:
+   - Team checks master is ok on staging site
+   - On scara: Create a mysql dump into current (live) branch
+   - On scara: Display maintenance page?
+   - On scara: Create new branch live-pre-merge-dd-mm-yy-hh-ss or whatever for safety
+   - On scara: Pull master from github to local master branch (this step to prevent half updates being live on apache)
+   - On scara: Apply database changes
+   - On scara: Checkout (switch to) live, merge master. Done!
+   - On scara: Remove maintenance page
+
+   * Therefore with a clever script we can instantly 'roll back' the tree on scaramanga (easy) and run the db dump we took to un-do db changes.
+     Not only that, we can easily go to any deployment point
+
 1. Set up your username:
 git config --global user.name "John Hunt"
 git config --global user.email "johnrhunt@gmail.com"
@@ -20,8 +45,13 @@ git merge experimental
 http://www.jarrodspillers.com/2009/08/19/git-merge-vs-git-rebase-avoiding-rebase-hell/
 - Don't rebase branches you have shared with another developer.
 
+6. Pushing
+- You'll push to whatever branch your currently on unless you specify the branch.. 
+
 Funny stuff:
-1. To set up an existing repo with existing files (eg empty repo with existing project on local macine) set origin to the remote repo
+1. To set up an existing repo with existing files (eg empty repo with existing project on local macine):
+   1. git init your sources
+   2. set the remote and pull in changes (I think that's what I did..)
 
 Creating new branches on remote repo:
 http://www.mariopareja.com/blog/archive/2010/01/11/how-to-push-a-new-local-branch-to-a-remote.aspx
@@ -36,4 +66,4 @@ Switched to branch 'experimental'
 
 But nothing has really changed as you haven't committed anything. If you change branches again without stashing/committing etc the un-committed changes will follow you around until you commit, stash or revert them.
 
-error: You have local changes to 'GIT_NOTES.txt'; cannot switch branches. -
+error: You have local changes to 'GIT_NOTES.txt'; cannot switch branches. - Stash, commit or revert.

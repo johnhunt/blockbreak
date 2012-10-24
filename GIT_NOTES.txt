@@ -1,5 +1,9 @@
 Git notes:
 
+1. Set up your username:
+git config --global user.name "John Hunt"
+git config --global user.email "johnrhunt@gmail.com"
+
 1. Enable colours!
 git config --global color.ui true
 

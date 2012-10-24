@@ -15,3 +15,12 @@ Creating new branches on remote repo:
 http://www.mariopareja.com/blog/archive/2010/01/11/how-to-push-a-new-local-branch-to-a-remote.aspx
 
 Note: when you git push origin it'll update all branches on origin that exist there
+
+Beware! This is very easy to do:
+
+john@helium:/var/www/streetrage/public$ git checkout experimental
+M       index.html
+Switched to branch 'experimental'
+
+Whoops, you just merged it to the new branch you checked out.. but that's because your file was un-staged
+

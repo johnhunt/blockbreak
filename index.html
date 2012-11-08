@@ -55,6 +55,10 @@
 		$("canvas").animateLayer("ball", {
 		  x: 300, y: 100,
 		}, 2000, "linear");
+
+		$("canvas").click(function() {
+			$("canvas").removeLayer("ball");
+		});
 	    });
 	  </script>
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->

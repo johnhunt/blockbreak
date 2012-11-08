@@ -33,15 +33,20 @@
 	    // http://www.alovelyparadox.com/2012/05/04/bouncing-balls-jquery-jcanvas/
 	    $(document).ready(function(){
 
+		gameBall = new ball();
+		gameBall.hello();
+
+		gameBall.draw();
 
 		setInterval(function(){		
 		// Game loop
-			$("canvas").clearCanvas();
-			animateBall();
+			//$("canvas").clearCanvas();
+			//animateBall(x, y);
+			x++;
 		},20);
 
 
-
+		/*
 		$("canvas").drawArc({
 		  layer: true,
 		  name: "ball",
@@ -59,8 +64,71 @@
 		$("canvas").click(function() {
 			$("canvas").removeLayer("ball");
 		});
+		*/
 	    });
-	  </script>
+
+	    function animateBall(xpos) {
+		 $("canvas").drawArc({
+                  layer: true,
+                  name: "ball",
+                  fillStyle: "rgb(150,0,0)",
+                  shadowColor: "rgb(150,0,0)",
+                  shadowBlur: 100,
+                  x: xpos, y: 100,
+                  radius: 10
+                });
+	
+	    }
+
+	function ball() {
+		// Variables
+		this.x = 0;
+		this.y = 0; 
+		this.canvas_id = "canvas";
+		this.layer_name = "ball";
+		this.direction = 160; // In degrees
+
+		// Methods
+		this.draw = draw;
+
+		/*
+		Draw the ball
+
+		@return void
+		*/
+		function draw()
+		{
+			$(this.canvas_id).drawArc({
+			  layer: true,
+			  name: this.layer_name,
+			  fillStyle: "#ff0000",
+			  shadowColor: "rgb(150,0,0)",
+			  shadowBlur: 100,
+			  x: this.x, y: this.y,
+			  radius: 10
+			});
+		}
+
+		function setPosition(x,y)
+		{
+
+		}
+
+		// Calculate and return a new position, don't set it though
+		function calculatePosition()
+		{
+
+		}
+
+		this.hello = hello;
+		function hello()
+		{
+			alert('here');
+		}
+	}
+
+
+	</script>
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
         <script>
             var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];

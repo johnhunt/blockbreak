@@ -12,3 +12,4 @@ A breakout clone written in javascript using jCanvas
 * Check for collisions
 * Update ball position
 * Check for mousemove and update paddle position
+* Use X and Y velocity instead of trajectory - easier/faster. Note - can be negative for left & down

@@ -34,51 +34,59 @@
 	    $(document).ready(function(){
 
 		gameBall = new ball();
-		gameBall.hello();
+		gamePaddle = new paddle();
+		canvas_element = 'canvas';
 
-		gameBall.draw();
+		x = 0;
 
 		setInterval(function(){		
 		// Game loop
-			//$("canvas").clearCanvas();
-			//animateBall(x, y);
-			x++;
+			x += 5;
+			gameBall.x = x; // Move ball left for testing
+			$(canvas_element).clearCanvas();
+
+			// Move the paddle
+			$(canvas_element).mousemove(function(event) {
+				gamePaddle.x = event.pageX;
+			});
+			gameBall.draw();
+			gamePaddle.draw();
 		},20);
 
 
 		/*
-		$("canvas").drawArc({
-		  layer: true,
-		  name: "ball",
-		  fillStyle: "rgb(150,0,0)",
-		  shadowColor: "rgb(150,0,0)",
-		  shadowBlur: 100,
-		  x: 100, y: 100,
-		  radius: 10
-		});
-
-		$("canvas").animateLayer("ball", {
-		  x: 300, y: 100,
-		}, 2000, "linear");
-
 		$("canvas").click(function() {
 			$("canvas").removeLayer("ball");
 		});
 		*/
 	    });
 
-	    function animateBall(xpos) {
-		 $("canvas").drawArc({
-                  layer: true,
-                  name: "ball",
-                  fillStyle: "rgb(150,0,0)",
-                  shadowColor: "rgb(150,0,0)",
-                  shadowBlur: 100,
-                  x: xpos, y: 100,
-                  radius: 10
-                });
-	
-	    }
+	/* Game playing field class - eventually this can hold collision detection and general game events? Maybe.. think about it.*/
+	function field()
+	{
+		this.width = 500;
+		this.height = 300;
+	}
+
+	function paddle() {
+		this.x = 100;
+		this.y = 280;
+		this.canvas_id = "canvas";
+                this.layer_name = "paddle";
+
+		this.draw = draw;
+		
+		function draw()
+		{
+			$(this.canvas_id).drawRect({
+			  fillStyle: "#00a",
+			  x: this.x, y: this.y,
+			  width: 100,
+			  height: 10,
+			  fromCenter: true
+			});
+		}		
+	}
 
 	function ball() {
 		// Variables
@@ -86,7 +94,9 @@
 		this.y = 0; 
 		this.canvas_id = "canvas";
 		this.layer_name = "ball";
-		this.direction = 160; // In degrees
+		//this.trajectory = 160; // In degrees
+		this.velocityX = 5;
+		this.velocityY = 5;
 
 		// Methods
 		this.draw = draw;
@@ -94,7 +104,7 @@
 		/*
 		Draw the ball
 
-		@return void
+		return void
 		*/
 		function draw()
 		{
@@ -102,8 +112,6 @@
 			  layer: true,
 			  name: this.layer_name,
 			  fillStyle: "#ff0000",
-			  shadowColor: "rgb(150,0,0)",
-			  shadowBlur: 100,
 			  x: this.x, y: this.y,
 			  radius: 10
 			});

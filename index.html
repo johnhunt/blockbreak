@@ -33,25 +33,58 @@
 	    // http://www.alovelyparadox.com/2012/05/04/bouncing-balls-jquery-jcanvas/
 	    $(document).ready(function(){
 
-		gameBall = new ball();
+		gameBall = new ball(6, 7); // velocity, radius
 		gamePaddle = new paddle();
 		canvas_element = 'canvas';
+		gameField = new field();
 
-		x = 0;
+		blockWidth = 100;
+		blockHeight = 10;
+		
+		blockRows = 5;
+		blockCols = 5;
+		blocks = new Array();
+		for (c = 1; c <= blockCols; c++ ){
+			blocks[c] = new Array();
+			for (r = 1; r < = blockRows; r++) {
+				id = c + ',' + r;
+				blocks[c][r] = new block(id
+			}
+		}
+		
+
+		// blockA = new block(1, 1, 0, 0, blockWidth, blockHeight, "#a00");
+		loopSpeed = 1000 / 30; // 1000 / fps
 
 		setInterval(function(){		
 		// Game loop
-			x += 5;
-			gameBall.x = x; // Move ball left for testing
 			$(canvas_element).clearCanvas();
 
 			// Move the paddle
 			$(canvas_element).mousemove(function(event) {
-				gamePaddle.x = event.pageX;
+				gamePaddle.move(event.pageX);
 			});
+
+			// Hit sides
+			if (gameBall.rightX > gameField.width || gameBall.leftX < 0) {
+				gameBall.velocityX = gameBall.velocityX * -1;	
+			}
+			if (gameBall.bottomY > gameField.height || gameBall.topY < 0) {
+				gameBall.velocityY = gameBall.velocityY * -1;	
+			}
+
+			// Hit paddle 
+			if (gameBall.bottomY > gamePaddle.topY) {
+				if (gameBall.x > gamePaddle.leftX && gameBall.x < gamePaddle.rightX) {
+	                                gameBall.velocityY = gameBall.velocityY * -1;
+				}
+			}
+
+
+			gameBall.move();
 			gameBall.draw();
 			gamePaddle.draw();
-		},20);
+		},loopSpeed);
 
 
 		/*
@@ -61,45 +94,100 @@
 		*/
 	    });
 
-	/* Game playing field class - eventually this can hold collision detection and general game events? Maybe.. think about it.*/
+	/* Game playing field class - eventually this can hold collision detection and general game events? Maybe.. think about it. */
 	function field()
 	{
 		this.width = 500;
 		this.height = 300;
 	}
 
-	function paddle() {
-		this.x = 100;
-		this.y = 280;
+	function block(col, row, leftX, topY, width, height, colour) {
+		this.height = height;
+		this.width = width;
 		this.canvas_id = "canvas";
-                this.layer_name = "paddle";
+                this.layer_name = "block" + id;
+		this.topY = topY;
+		this.bottomY = topY + this.height;
+		this.leftX = leftX;
+		this.rightX = leftX + this.width;
+		this.colour = colour;
 
 		this.draw = draw;
 		
 		function draw()
 		{
 			$(this.canvas_id).drawRect({
-			  fillStyle: "#00a",
-			  x: this.x, y: this.y,
-			  width: 100,
-			  height: 10,
-			  fromCenter: true
+			  name: this.layer_name,
+			  fillStyle: this.colour,
+			  x: this.leftX, y: this.topY,
+			  width: this.width,
+			  height: this.height,
+			  fromCenter: false
 			});
-		}		
+		}
 	}
 
-	function ball() {
+
+	function paddle() {
+		this.x = 100;
+		this.y = 280;
+		this.height = 10;
+		this.width = 100;
+		this.halfHeight = this.height / 2;
+		this.halfWidth = this.width / 2;
+		this.canvas_id = "canvas";
+                this.layer_name = "paddle";
+
+		this.draw = draw;
+		this.move = move;
+		this.updateBounds = updateBounds;
+
+		this.updateBounds();
+		
+		function draw()
+		{
+			$(this.canvas_id).drawRect({
+			  name: this.layer_name,
+			  fillStyle: "#00a",
+			  x: this.x, y: this.y,
+			  width: this.width,
+			  height: this.height,
+			  fromCenter: true
+			});
+		}
+	
+		function move(x)
+		{
+			this.x = x;
+			this.updateBounds();
+		}
+
+		function updateBounds()
+		{
+			this.topY = this.y - this.halfHeight;
+			this.bottomY = this.y + this.halfHeight;
+			this.leftX = this.x - this.halfWidth;
+			this.rightX = this.x + this.halfWidth;
+		}
+	}
+
+	function ball(velocity, radius) {
 		// Variables
-		this.x = 0;
-		this.y = 0; 
+		this.x = 300;
+		this.y = 100; 
 		this.canvas_id = "canvas";
 		this.layer_name = "ball";
-		//this.trajectory = 160; // In degrees
-		this.velocityX = 5;
-		this.velocityY = 5;
+		this.velocityX = velocity;
+		this.velocityY = velocity;
+		this.radius = radius;
+		this.topY = this.y - this.radius;
+		this.bottomY = this.y + this.radius;
+		this.leftX = this.x - this.radius;
+		this.rightX = this.x + this.radius;
 
 		// Methods
 		this.draw = draw;
+		this.move = move;
 
 		/*
 		Draw the ball
@@ -113,13 +201,18 @@
 			  name: this.layer_name,
 			  fillStyle: "#ff0000",
 			  x: this.x, y: this.y,
-			  radius: 10
+			  radius: this.radius
 			});
 		}
 
-		function setPosition(x,y)
+		function move()
 		{
-
+			this.x += this.velocityX;
+			this.y += this.velocityY;
+			this.topY = this.y - this.radius;
+			this.bottomY = this.y + this.radius;
+			this.leftX = this.x - this.radius;
+			this.rightX = this.x + this.radius;
 		}
 
 		// Calculate and return a new position, don't set it though

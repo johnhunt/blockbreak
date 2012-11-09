@@ -44,11 +44,10 @@
 		blockRows = 5;
 		blockCols = 5;
 		blocks = new Array();
-		for (c = 1; c <= blockCols; c++ ){
+		for (c = 0; c < blockCols; c++ ){
 			blocks[c] = new Array();
-			for (r = 1; r < = blockRows; r++) {
-				id = c + ',' + r;
-				blocks[c][r] = new block(id
+			for (r = 0; r < blockRows; r++) {
+				blocks[c][r] = new block(c, r, c * blockWidth, r * blockHeight, blockWidth, blockHeight, "#0" + c + r);
 			}
 		}
 		
@@ -80,7 +79,13 @@
 				}
 			}
 
-
+			// Redraw blocks
+	                for (c = 0; c < blockCols; c++ ){
+				for (r = 0; r < blockRows; r++) {
+					blocks[c][r].draw();
+				}
+			}
+			
 			gameBall.move();
 			gameBall.draw();
 			gamePaddle.draw();
@@ -105,7 +110,7 @@
 		this.height = height;
 		this.width = width;
 		this.canvas_id = "canvas";
-                this.layer_name = "block" + id;
+                this.layer_name = "block" + col + row;
 		this.topY = topY;
 		this.bottomY = topY + this.height;
 		this.leftX = leftX;

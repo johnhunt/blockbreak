@@ -33,7 +33,7 @@
 	    // http://www.alovelyparadox.com/2012/05/04/bouncing-balls-jquery-jcanvas/
 	    $(document).ready(function(){
 
-		gameBall = new ball(6, 7); // velocity, radius
+		gameBall = new ball(3, 7); // velocity, radius
 		gamePaddle = new paddle();
 		canvas_element = 'canvas';
 		gameField = new field();
@@ -41,8 +41,10 @@
 		blockWidth = 100;
 		blockHeight = 10;
 		
-		blockRows = 5;
+		blockRows = 25;
 		blockCols = 5;
+
+		// Create block arrray
 		blocks = new Array();
 		for (c = 0; c < blockCols; c++ ){
 			blocks[c] = new Array();
@@ -82,7 +84,21 @@
 			// Redraw blocks
 	                for (c = 0; c < blockCols; c++ ){
 				for (r = 0; r < blockRows; r++) {
-					blocks[c][r].draw();
+					// Combine this with collision detection for speed
+					// If hits, remove else draw
+					// Add scoring here too
+					// And maybe speedup
+					// Check array element exists
+					if (typeof blocks[c][r] != 'undefined') {
+						if (((gameBall.bottomY > (r * blockHeight) && gameBall.bottomY < (r * blockHeight) + blockHeight) ||
+						    (gameBall.topY > r * blockHeight && gameBall.topY < (r * blockHeight) + blockHeight)) &&
+						    (gameBall.rightX > c * blockWidth && gameBall.leftX < (c * blockWidth) + blockWidth)) {
+								delete blocks[c][r];
+								gameBall.velocityY = gameBall.velocityY * -1;
+						} else {
+							blocks[c][r].draw();
+						}
+					}
 				}
 			}
 			

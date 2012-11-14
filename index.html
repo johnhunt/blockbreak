@@ -37,21 +37,23 @@
 		gamePaddle = new paddle();
 		canvas_element = 'canvas';
 		gameField = new field();
+		gameScore = new score();
 
 		blockWidth = 100;
 		blockHeight = 10;
 		
 		blockRows = 10;
+		offset = 2; // Move wall down 5 rows
 		blockCols = 5;
 
 		// Create block arrray
 		blocks = new Array();
 		for (c = 0; c < blockCols; c++ ){
 			blocks[c] = new Array();
-			for (r = 0; r < blockRows; r++) {
-				red = Math.floor((Math.random()*255)).toString();
-				green = Math.floor((Math.random()*255)).toString();
-				blue = Math.floor((Math.random()*255)).toString();
+			for (r = offset; r < (blockRows + offset); r++) {
+				red = Math.floor((Math.random()*255) + 50).toString();
+				green = Math.floor((Math.random()*255) + 50).toString();
+				blue = Math.floor((Math.random()*255) + 50).toString();
 				blocks[c][r] = new block(c, r, c * blockWidth, r * blockHeight, blockWidth, blockHeight, 'rgb(' + red + ',' + green + ',' + blue + ')');
 			}
 		}
@@ -86,18 +88,20 @@
 
 			// Redraw blocks
 	                for (c = 0; c < blockCols; c++ ){
-				for (r = 0; r < blockRows; r++) {
+				for (r = 0; r < blockRows + offset; r++) {
 					// Combine this with collision detection for speed
 					// If hits, remove else draw
 					// Add scoring here too
 					// And maybe speedup
 					// Check array element exists
+					// Change to this collision detection: http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection (second answer)
 					if (typeof blocks[c][r] != 'undefined') {
 						if (((gameBall.bottomY > (r * blockHeight) && gameBall.bottomY < (r * blockHeight) + blockHeight) ||
 						    (gameBall.topY > r * blockHeight && gameBall.topY < (r * blockHeight) + blockHeight)) &&
 						    (gameBall.rightX > c * blockWidth && gameBall.leftX < (c * blockWidth) + blockWidth)) {
 								delete blocks[c][r];
 								gameBall.velocityY = gameBall.velocityY * -1;
+								gameScore.hitBlock();
 						} else {
 							blocks[c][r].draw();
 						}
@@ -108,6 +112,7 @@
 			gameBall.move();
 			gameBall.draw();
 			gamePaddle.draw();
+			gameScore.draw();
 		},loopSpeed);
 
 
@@ -151,6 +156,34 @@
 		}
 	}
 
+	function score() {
+		this.score = 0;
+                this.canvas_id = "canvas";
+                this.layer_name = "score";
+		this.x = 10;
+		this.y = 10;
+
+		this.draw = draw;
+		this.hitBlock = hitBlock;
+
+		function hitBlock()
+		{
+			this.score += 100;
+		}
+
+		function draw()
+		{
+			$(this.canvas_id).drawText({
+				fillStyle: "#f00",
+				strokeStyle: "#000",
+				strokeWidth: 2,
+				x: this.x, y: this.y,
+				font: "36pt Verdana, Geneva, sans-serif",
+				text: this.score,
+				fromCenter:  false
+			});
+		}
+	}
 
 	function paddle() {
 		this.x = 100;

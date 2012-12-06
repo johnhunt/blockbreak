@@ -38,6 +38,8 @@ git config --global color.ui true
 - !! When you clone a repo it doesn't appear to list all the branches but they are there..
 http://stackoverflow.com/questions/67699/how-do-i-clone-all-remote-branches-with-git
 
+This will make pushes on your current branch go to the same branch on remote (they do anyway but this makes it explicit):
+git config --global push.default matching
 
 4. Merging:
 git merge experimental

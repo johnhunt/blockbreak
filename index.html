@@ -96,9 +96,14 @@
 					// Check array element exists
 					// Change to this collision detection: http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection (second answer)
 					if (typeof blocks[c][r] != 'undefined') {
-						if (((gameBall.bottomY > (r * blockHeight) && gameBall.bottomY < (r * blockHeight) + blockHeight) ||
-						    (gameBall.topY > r * blockHeight && gameBall.topY < (r * blockHeight) + blockHeight)) &&
-						    (gameBall.rightX > c * blockWidth && gameBall.leftX < (c * blockWidth) + blockWidth)) {
+					
+						collision = false;
+						
+						// Get centre x/y of block..
+						// @TODO, use block.x and block.y with above url collision here to set collision true/false.
+						
+					
+						if (collision) {
 								delete blocks[c][r];
 								gameBall.velocityY = gameBall.velocityY * -1;
 								gameScore.hitBlock();
@@ -140,6 +145,8 @@
 		this.leftX = leftX;
 		this.rightX = leftX + this.width;
 		this.colour = colour;
+		this.x = this.leftX + (this.width / 2);
+		this.y = this.topY + (this.height / 2);
 
 		this.draw = draw;
 		

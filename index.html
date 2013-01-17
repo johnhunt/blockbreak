@@ -31,6 +31,20 @@
         <script src="js/jcanvas.js"></script>
 	  <script type="text/javascript">
 	    // http://www.alovelyparadox.com/2012/05/04/bouncing-balls-jquery-jcanvas/
+		 
+		// shim layer with setTimeout fallback
+		window.requestAnimFrame = (function(){
+		  return  window.requestAnimationFrame       || 
+				  window.webkitRequestAnimationFrame || 
+				  window.mozRequestAnimationFrame    || 
+				  window.oRequestAnimationFrame      || 
+				  window.msRequestAnimationFrame     || 
+				  function( callback ){
+					window.setTimeout(callback, 1000 / 60);
+				  };
+		})();
+		
+	
 	    $(document).ready(function(){
 
 		gameBall = new ball(3, 7); // velocity, radius
@@ -62,7 +76,12 @@
 		// blockA = new block(1, 1, 0, 0, blockWidth, blockHeight, "#a00");
 		loopSpeed = 1000 / 30; // 1000 / fps
 
-		setInterval(function(){		
+		(function animloop(){
+			requestAnimFrame(animloop);
+			render();
+		})();
+		
+		function render() {
 		// Game loop
 			$(canvas_element).clearCanvas();
 
@@ -113,7 +132,7 @@
 			gameBall.draw();
 			gamePaddle.draw();
 			gameScore.draw();
-		},loopSpeed);
+		}
 
 
 		/*

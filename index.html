@@ -23,9 +23,8 @@
 	<h1>Test branch!</h1>
 	<canvas width="500" height="300" style="border: 1px solid blue"></canvas>
         <!-- Add your site or application content here -->
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.0.min.js"><\/script>')</script>
-	<script src="js/jQuery.jPlayer.2.2.0/jquery.jplayer.min.js"></script>
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>
         <script src="js/jcanvas.js"></script>
@@ -48,7 +47,7 @@
 	    $(document).ready(function(){
 
 		gameBall = new ball(3, 7); // velocity, radius
-		gamePaddle = new paddle();
+		gamePaddle = new paddle(100, 10, "#a00"); // width, height
 		canvas_element = 'canvas';
 		gameField = new field();
 		gameScore = new score();
@@ -56,7 +55,7 @@
 		blockWidth = 100;
 		blockHeight = 10;
 		
-		blockRows = 10;
+		blockRows = 30;
 		offset = 2; // Move wall down 5 rows
 		blockCols = 5;
 
@@ -86,6 +85,7 @@
 			$(canvas_element).clearCanvas();
 
 			// Move the paddle
+			// @TODO - Add touch events
 			$(canvas_element).mousemove(function(event) {
 				gamePaddle.move(event.pageX);
 			});
@@ -98,28 +98,34 @@
 				gameBall.velocityY = gameBall.velocityY * -1;	
 			}
 
-			// Hit paddle 
-			if (gameBall.bottomY > gamePaddle.topY) {
-				if (gameBall.x > gamePaddle.leftX && gameBall.x < gamePaddle.rightX) {
-	                                gameBall.velocityY = gameBall.velocityY * -1;
-				}
+			// Hit paddle
+			// @TODO - If hits sides don't flip Y velocity.
+			if (intersects(gameBall, gamePaddle)) {
+				console.log('hit');
+	            gameBall.velocityY = gameBall.velocityY * -1;
 			}
 
 			// Redraw blocks
-	                for (c = 0; c < blockCols; c++ ){
+	        for (c = 0; c < blockCols; c++ ){
 				for (r = 0; r < blockRows + offset; r++) {
-					// Combine this with collision detection for speed
-					// If hits, remove else draw
-					// Add scoring here too
-					// And maybe speedup
-					// Check array element exists
-					// Change to this collision detection: http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection (second answer)
-					if (typeof blocks[c][r] != 'undefined') {
-						if (((gameBall.bottomY > (r * blockHeight) && gameBall.bottomY < (r * blockHeight) + blockHeight) ||
-						    (gameBall.topY > r * blockHeight && gameBall.topY < (r * blockHeight) + blockHeight)) &&
-						    (gameBall.rightX > c * blockWidth && gameBall.leftX < (c * blockWidth) + blockWidth)) {
+					if (typeof blocks[c][r] != 'undefined') {												
+						// @TODO - Because the current column has not finished being drawn yet the ball
+						// is sometimes moving downwards and all of a sudden there's a block there, it gets
+						// drawn and removed in the same pass before the frame is displayed and you get a 
+						// weird phantom up/down-bounce.
+						hit_type = intersects(gameBall, blocks[c][r]);
+						if (hit_type != false) {
+								// Remember, the field has not finished being drawn yet..
 								delete blocks[c][r];
-								gameBall.velocityY = gameBall.velocityY * -1;
+								
+								if (hit_type == 'topbottom') {
+									console.log('Change Y dir');
+									gameBall.velocityY = gameBall.velocityY * -1;
+								} else {
+									console.log('Change X dir');
+									gameBall.velocityX = gameBall.velocityX * -1;
+								}
+
 								gameScore.hitBlock();
 						} else {
 							blocks[c][r].draw();
@@ -134,14 +140,32 @@
 			gameScore.draw();
 		}
 
+		};
+		
+	});
 
-		/*
-		$("canvas").click(function() {
-			$("canvas").removeLayer("ball");
-		});
-		*/
-	    });
+	// Ball/rect collision detection from http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection (second answer)
+	// Many thanks to e.James (http://stackoverflow.com/users/33686/e-james)
+	
+	// @TODO: Sometimes when a block is hit on the side the Y direction changes.. needs fixing
+	function intersects(circle, rect)
+	{
+		circleDistanceX = Math.abs(circle.x - rect.x);
+		circleDistanceY = Math.abs(circle.y - rect.y);
 
+		if (circleDistanceX > (rect.width/2 + circle.radius)) { return false; }
+		if (circleDistanceY > (rect.height/2 + circle.radius)) { return false; }
+
+		if (circleDistanceX <= (rect.width/2)) { return 'topbottom'; } 
+		if (circleDistanceY <= (rect.height/2)) { return 'topbottom'; }
+
+		cornerDistance_sq = (circleDistanceX - rect.width/2)^2 +
+							 (circleDistanceY - rect.height/2)^2;
+
+		//return (cornerDistance_sq <= (circle.radius^2));
+		return ('leftright');
+	}
+		
 	/* Game playing field class - eventually this can hold collision detection and general game events? Maybe.. think about it. */
 	function field()
 	{
@@ -159,6 +183,8 @@
 		this.leftX = leftX;
 		this.rightX = leftX + this.width;
 		this.colour = colour;
+		this.x = this.leftX + (this.width / 2);
+		this.y = this.topY + (this.height / 2);
 
 		this.draw = draw;
 		
@@ -204,15 +230,20 @@
 		}
 	}
 
-	function paddle() {
-		this.x = 100;
-		this.y = 280;
-		this.height = 10;
-		this.width = 100;
-		this.halfHeight = this.height / 2;
-		this.halfWidth = this.width / 2;
+	function paddle(width, height, colour) {
+
+		this.height = height;
+		this.width = width;
 		this.canvas_id = "canvas";
-                this.layer_name = "paddle";
+        this.layer_name = "paddle";
+		this.topY = 200;
+		this.bottomY = this.topY + this.height;
+		this.leftX = 200;
+		this.rightX = this.leftX + this.width;
+		this.colour = "#a00";
+		this.x = this.leftX + (this.width / 2);
+		this.y = this.topY + (this.height / 2);	
+
 
 		this.draw = draw;
 		this.move = move;
@@ -224,11 +255,11 @@
 		{
 			$(this.canvas_id).drawRect({
 			  name: this.layer_name,
-			  fillStyle: "#00a",
-			  x: this.x, y: this.y,
+			  fillStyle: this.colour,
+			  x: this.leftX, y: this.topY,
 			  width: this.width,
 			  height: this.height,
-			  fromCenter: true
+			  fromCenter: false
 			});
 		}
 	
@@ -240,10 +271,10 @@
 
 		function updateBounds()
 		{
-			this.topY = this.y - this.halfHeight;
-			this.bottomY = this.y + this.halfHeight;
-			this.leftX = this.x - this.halfWidth;
-			this.rightX = this.x + this.halfWidth;
+			this.topY = this.y - (this.height / 2);
+			this.bottomY = this.y + (this.height / 2);
+			this.leftX = this.x - (this.width / 2);
+			this.rightX = this.x + (this.width / 2);
 		}
 	}
 
@@ -306,12 +337,5 @@
 
 
 	</script>
-        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-        <script>
-            var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
-            (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-            g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-            s.parentNode.insertBefore(g,s)}(document,'script'));
-        </script>
     </body>
 </html>

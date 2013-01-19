@@ -54,7 +54,7 @@
 		blockWidth = 100;
 		blockHeight = 10;
 		
-		blockRows = 10;
+		blockRows = 30;
 		offset = 2; // Move wall down 5 rows
 		blockCols = 5;
 
@@ -84,6 +84,7 @@
 			$(canvas_element).clearCanvas();
 
 			// Move the paddle
+			// @TODO - Add touch events
 			$(canvas_element).mousemove(function(event) {
 				gamePaddle.move(event.pageX);
 			});
@@ -107,14 +108,20 @@
 	        for (c = 0; c < blockCols; c++ ){
 				for (r = 0; r < blockRows + offset; r++) {
 					if (typeof blocks[c][r] != 'undefined') {												
-						// @TODO - Some corner hits still seem a little off, figure out.
+						// @TODO - Because the current column has not finished being drawn yet the ball
+						// is sometimes moving downwards and all of a sudden there's a block there, it gets
+						// drawn and removed in the same pass before the frame is displayed and you get a 
+						// weird phantom up/down-bounce.
 						hit_type = intersects(gameBall, blocks[c][r]);
 						if (hit_type != false) {
+								// Remember, the field has not finished being drawn yet..
 								delete blocks[c][r];
 								
 								if (hit_type == 'topbottom') {
+									console.log('Change Y dir');
 									gameBall.velocityY = gameBall.velocityY * -1;
 								} else {
+									console.log('Change X dir');
 									gameBall.velocityX = gameBall.velocityX * -1;
 								}
 
@@ -129,7 +136,10 @@
 			gameBall.move();
 			gameBall.draw();
 			gamePaddle.draw();
-			gameScore.draw();
+			gameScore.draw();			
+			
+			
+
 		};
 		
 	});

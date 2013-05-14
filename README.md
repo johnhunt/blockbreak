@@ -13,3 +13,4 @@ A breakout clone written in javascript using jCanvas
 * Update ball position
 * Check for mousemove and update paddle position
 * Use X and Y velocity instead of trajectory - easier/faster. Note - can be negative for left & down
+* Try to match redrawing and event freqency with ball velocity.. should save a lot of processing and make the game more accurate

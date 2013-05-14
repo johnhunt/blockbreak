@@ -20,8 +20,7 @@
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
         <![endif]-->
-	<h1>Test branch!</h1>
-	<canvas width="500" height="300" style="border: 1px solid blue"></canvas>
+	<canvas width="1000" height="500" style="border: 1px solid blue" id="ballgame"></canvas>
         <!-- Add your site or application content here -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.0.min.js"><\/script>')</script>
@@ -45,18 +44,18 @@
 		
 	    $(document).ready(function(){
 
-		gameBall = new ball(3, 7); // velocity, radius
+		gameBall = new ball(1, 8); // velocity, radius
 		gamePaddle = new paddle(100, 10, "#a00"); // width, height
 		canvas_element = 'canvas';
 		gameField = new field();
 		gameScore = new score();
 
 		blockWidth = 100;
-		blockHeight = 10;
+		blockHeight = 20;
 		
-		blockRows = 30;
-		offset = 2; // Move wall down 5 rows
-		blockCols = 5;
+		blockRows = 10;
+		offset = 1; // Move wall down 5 rows
+		blockCols = 10;
 
 		// Create block arrray
 		blocks = new Array();
@@ -69,10 +68,6 @@
 				blocks[c][r] = new block(c, r, c * blockWidth, r * blockHeight, blockWidth, blockHeight, 'rgb(' + red + ',' + green + ',' + blue + ')');
 			}
 		}
-		
-
-		// blockA = new block(1, 1, 0, 0, blockWidth, blockHeight, "#a00");
-		loopSpeed = 1000 / 30; // 1000 / fps
 
 		(function animloop(){
 			requestAnimFrame(animloop);
@@ -105,6 +100,17 @@
 			}
 
 			// Redraw blocks
+			// We draw blocks here because if we do it in
+			// the same loop as the collision detection we get phantom bounces (read below)
+			// they weren't fun.
+	        for (c = 0; c < blockCols; c++ ){
+				for (r = 0; r < blockRows + offset; r++) {
+					if (typeof blocks[c][r] != 'undefined') {												
+							blocks[c][r].draw();
+					}
+				}
+			}
+
 	        for (c = 0; c < blockCols; c++ ){
 				for (r = 0; r < blockRows + offset; r++) {
 					if (typeof blocks[c][r] != 'undefined') {												
@@ -118,16 +124,11 @@
 								delete blocks[c][r];
 								
 								if (hit_type == 'topbottom') {
-									console.log('Change Y dir');
 									gameBall.velocityY = gameBall.velocityY * -1;
 								} else {
-									console.log('Change X dir');
 									gameBall.velocityX = gameBall.velocityX * -1;
 								}
-
 								gameScore.hitBlock();
-						} else {
-							blocks[c][r].draw();
 						}
 					}
 				}
@@ -169,8 +170,8 @@
 	/* Game playing field class - eventually this can hold collision detection and general game events? Maybe.. think about it. */
 	function field()
 	{
-		this.width = 500;
-		this.height = 300;
+		this.width = $("#ballgame").width();
+		this.height = $("#ballgame").height();
 	}
 
 	function block(col, row, leftX, topY, width, height, colour) {
@@ -236,7 +237,7 @@
 		this.width = width;
 		this.canvas_id = "canvas";
         this.layer_name = "paddle";
-		this.topY = 200;
+		this.topY = 450;
 		this.bottomY = this.topY + this.height;
 		this.leftX = 200;
 		this.rightX = this.leftX + this.width;
@@ -280,8 +281,8 @@
 
 	function ball(velocity, radius) {
 		// Variables
-		this.x = 300;
-		this.y = 100; 
+		this.x = 301;
+		this.y = 300; 
 		this.canvas_id = "canvas";
 		this.layer_name = "ball";
 		this.velocityX = velocity;

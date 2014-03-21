@@ -3,6 +3,7 @@ Blockbreak 3d
 
 @todo - Create a base class for the different objects.. everything needs a create() method!
 @todo - Tidy up a bit before moving on.
+@todo - Use translateX on paddle movement.. should be smoother.
 
 */
 console.log('Loading blockbreak...');

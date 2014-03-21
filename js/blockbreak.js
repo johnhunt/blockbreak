@@ -1,5 +1,9 @@
 /*
 Blockbreak 3d
+
+@todo - Create a base class for the different objects.. everything needs a create() method!
+@todo - Tidy up a bit before moving on.
+
 */
 console.log('Loading blockbreak...');
 
@@ -7,13 +11,12 @@ console.log('Loading blockbreak...');
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 var renderer = new THREE.WebGLRenderer({antialiasing: true});
+
+var projector = new THREE.Projector(); // Used for mapping the 3d world to the 2d one
+
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-/*
-controls = new THREE.TrackballControls( camera );
-controls.target.set( 0, 0, 0 )
-*/
 
 /* Create game objects */
 gameBall = new ball(5, 8); // velocity, radius
@@ -28,13 +31,15 @@ blockRows = 10;
 offset = 1; // Move wall down 5 rows
 blockCols = 10;
 
+globalDepth = -10;
+
 // Create block arrray
 blocks = new Array();
 for (c = 0; c < blockCols; c++ ){
 	blocks[c] = new Array();
 	for (r = offset; r < blockRows; r++) {
         blocks[c][r] = new block();
-        blocks[c][r].setPosition((c * 5) - 23, r - offset, -8);
+        blocks[c][r].setPosition((c * 5) - 23, r - offset, globalDepth);
         blocks[c][r].create();
 
         /* Get mesh */
@@ -42,6 +47,12 @@ for (c = 0; c < blockCols; c++ ){
 		console.log('Added block ' + c + ', ' + r);
 	}
 }
+
+// Create paddle
+paddle = new paddle();
+paddle.create();
+paddle.setPosition(0,-10, globalDepth);
+scene.add(paddle.getMesh());
 
 var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
 directionalLight.position.set( 0, 1, 0 );
@@ -58,10 +69,32 @@ function render() {
 	for (i = -blockCols; i < blockCols; i++) {
     //cubes[i].rotation.x += 0.01;
     //cubes[i].rotation.y += 0.03;
-        blocks[1][1].getMesh().translateZ( 0.01 );
+    // blocks[1][1].getMesh().translateZ( 0.01 ); // movement test
 	//cube.position.z += 0.1;
 
 	}
+    $('body').mousemove(function(event) {
+        var vector = new THREE.Vector3(
+            ( event.clientX / window.innerWidth ) * 2 - 1,
+            - ( event.clientY / window.innerHeight ) * 2 + 1,
+            0.5 );
+
+        projector.unprojectVector( vector, camera );
+
+        var dir = vector.sub( camera.position ).normalize();
+
+        var distance = - camera.position.z / dir.z - paddle.positionZ + 5;
+
+        var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
+        paddle.setPosition(pos.x, paddle.positionY, paddle.positionZ);
+    });
+
+
+/*
+    $('body').mousemove(function(event) {
+        paddle.setPosition(event.pageX / 100, paddle.positionY, paddle.positionZ);
+    });
+*/
 	requestAnimationFrame(render);
 	renderer.render(scene, camera);
 }
@@ -139,54 +172,6 @@ function lives() {
 			text: this.lives,
 			fromCenter:  false
 		});
-	}
-}
-
-function paddle(width, height, colour) {
-
-	this.height = height;
-	this.width = width;
-	this.canvas_id = "canvas";
-    this.layer_name = "paddle";
-	this.topY = 450;
-	this.bottomY = this.topY + this.height;
-	this.leftX = 200;
-	this.rightX = this.leftX + this.width;
-	this.colour = "#a00";
-	this.x = this.leftX + (this.width / 2);
-	this.y = this.topY + (this.height / 2);
-
-
-	this.draw = draw;
-	this.move = move;
-	this.updateBounds = updateBounds;
-
-	this.updateBounds();
-
-	function draw()
-	{
-		$(this.canvas_id).drawRect({
-		  name: this.layer_name,
-		  fillStyle: this.colour,
-		  x: this.leftX, y: this.topY,
-		  width: this.width,
-		  height: this.height,
-		  fromCenter: false
-		});
-	}
-
-	function move(x)
-	{
-		this.x = x;
-		this.updateBounds();
-	}
-
-	function updateBounds()
-	{
-		this.topY = this.y - (this.height / 2);
-		this.bottomY = this.y + (this.height / 2);
-		this.leftX = this.x - (this.width / 2);
-		this.rightX = this.x + (this.width / 2);
 	}
 }
 
